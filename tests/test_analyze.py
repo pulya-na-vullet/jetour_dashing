@@ -58,6 +58,25 @@ class DemoAnalyzeTest(unittest.TestCase):
             report = analyze_session(session)
             self.assertEqual(report["verdict"], "EXCLUSIVE_LOCK")
 
+    def test_cp1251_does_not_crash_on_arrows(self) -> None:
+        from hu_diag.console import ascii_safe
+        from hu_diag.commands import SNAPSHOT_STAGES
+        from hu_diag.analyze import render_markdown, analyze_session
+
+        raw = "USB \u2192 Device \u2192 OK. Cable USB-A \u2014 USB-A. Report."
+        encoded = ascii_safe(raw).encode("cp1251")
+        self.assertIn(b"->", encoded)
+        for _stage, title, how in SNAPSHOT_STAGES:
+            ascii_safe(title).encode("cp1251")
+            ascii_safe(how).encode("cp1251")
+        with tempfile.TemporaryDirectory() as tmp:
+            session = Path(tmp) / "hu_diag_demo"
+            write_demo_session(session)
+            report = analyze_session(session)
+            ascii_safe(render_markdown(report)).encode("cp1251")
+            ascii_safe(report["summary_ru"]).encode("cp1251")
+
+
 
 if __name__ == "__main__":
     unittest.main()

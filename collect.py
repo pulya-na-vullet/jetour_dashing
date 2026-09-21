@@ -32,6 +32,7 @@ if str(ROOT) not in sys.path:
 from hu_diag import __version__
 from hu_diag.analyze import write_report
 from hu_diag.commands import BASELINE_COMMANDS, SNAPSHOT_COMMANDS, SNAPSHOT_STAGES, DumpCmd
+from hu_diag.console import ask, configure_stdio, say
 from hu_diag.demo import write_demo_session
 
 DEFAULT_LOGS = ROOT / "logs"
@@ -39,7 +40,7 @@ ADB_TIMEOUT_SEC = 90
 
 
 def _say(msg: str) -> None:
-    print(msg, flush=True)
+    say(msg)
 
 
 def find_adb(explicit: str | None) -> str:
@@ -62,7 +63,7 @@ def find_adb(explicit: str | None) -> str:
             return str(cand)
     raise SystemExit(
         "adb не найден в PATH. Поставьте platform-tools и укажите --adb PATH.\n"
-        "Сами команды на ГУ (инженерное меню) этот скрипт не вводит — только dumpsys после подключения."
+        "Сами команды на ГУ (инженерное меню) этот скрипт не вводит - только dumpsys после подключения."
     )
 
 
@@ -87,10 +88,10 @@ def wait_for_device(adb_bin: str, serial: str | None) -> str:
     _say("Коды инженерного меню вводите сами на ГУ, скрипт их не набирает.")
     _say("  Android 9:  *#20201030#*   или  *#20220730#*")
     _say("  Другой код: *621317658#")
-    _say("Дальше: USB → Device → OK. Кабель USB-A — USB-A в порт ГУ (часто под подлокотником).")
-    _say("Когда устройство появится в `adb devices`, нажмите Enter.")
+    _say("Dalshe: USB -> Device -> OK. Kabel USB-A - USB-A v port GU (pod podlokotnikom).")
+    _say("Kogda adb devices pokazyvaet device, nazhmite Enter.")
     while True:
-        input("Enter, когда ADB готов (или сразу, если уже подключён)... ")
+        ask("Enter kogda ADB gotov (ili srazu esli uzhe podklyuchen)...")
         try:
             proc = adb(adb_bin, None, ["devices"])
         except FileNotFoundError:
@@ -148,7 +149,7 @@ def save_cmd(out_dir: Path, adb_bin: str, serial: str, spec: DumpCmd, log) -> No
     path = out_dir / spec.filename
     path.write_text("\n".join(body), encoding="utf-8")
     status = "ok" if rc == 0 else f"rc={rc}"
-    line = f"  [{status}] {spec.filename} ({len(stdout)} bytes) — {spec.description}"
+    line = f"  [{status}] {spec.filename} ({len(stdout)} bytes) - {spec.description}"
     _say(line)
     log.write(line + "\n")
 
@@ -159,7 +160,7 @@ def pause(title: str, how: str) -> None:
     _say(title)
     _say(how)
     _say("=" * 60)
-    input("Enter, когда экран в нужном состоянии... ")
+    ask("Enter kogda ekran v nuzhnom sostoyanii...")
 
 
 def collect(adb_bin: str, serial: str, session: Path) -> None:
@@ -222,6 +223,7 @@ def print_commands() -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_stdio()
     parser = argparse.ArgumentParser(
         description="Инвентаризация камер/360/USB на ГУ Jetour Dashing (только чтение)."
     )

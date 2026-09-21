@@ -22,8 +22,7 @@
 - Кабель USB-A — USB-A
 - На ГУ: USB Device (не Host)
 
-Windows: `collect.bat`  
-Linux/macOS: `./collect.sh`
+Windows: лучше `collect.bat` (включает UTF-8 в консоли). Если запускаете `python collect.py` из cmd и видите крякозябры - это нормально для старого cmd, на работу не влияет; логи пишутся в UTF-8.
 
 ## Как снять лог в машине
 
